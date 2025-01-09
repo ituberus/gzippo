@@ -1,12 +1,18 @@
 // backend/server.js
 
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const fetch = require('node-fetch');
-const path = require('path');
-const WebSocket = require('ws');
-const fs = require('fs').promises;
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import path from 'path';
+import { WebSocketServer } from 'ws';
+import { promises as fs } from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Define __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 dotenv.config();
 
@@ -21,13 +27,20 @@ const PORT = process.env.PORT || 3001;
 const DB_PATH = path.join(__dirname, 'database.json');
 
 // Middleware
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5173', 'https://d4b7-102-89-82-36.ngrok-free.app'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://d4b7-102-89-82-36.ngrok-free.app',
+'https://gboxboss.github.io',
+  
+  'https://your-frontend-domain.com' // Replace with your actual frontend domain
+];
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
+    if (!allowedOrigins.includes(origin)) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
       return callback(new Error(msg), false);
     }
@@ -143,7 +156,7 @@ app.post('/api/agents', async (req, res) => {
 
   try {
     const db = await readDatabase();
-    
+
     // Check if name already exists
     if (db.agents.some(agent => agent.name === name)) {
       return res.status(409).json({
@@ -319,9 +332,9 @@ app.get('*', (req, res) => {
 });
 
 // Initialize WebSocket Server
-const wss = new WebSocket.Server({ noServer: true });
+const wss = new WebSocketServer({ noServer: true });
 
-wss.on('connection', (ws, request, client) => {
+wss.on('connection', (ws, request) => {
   console.log('WebSocket connection established.');
 
   ws.on('message', async (message) => {
