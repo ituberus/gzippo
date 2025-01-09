@@ -30,7 +30,7 @@ const DB_PATH = path.join(__dirname, 'database.json');
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://d4b7-102-89-82-36.ngrok-free.app',
+  'https://voxalabs.com',
 'https://gboxboss.github.io',
   
   'https://your-frontend-domain.com' // Replace with your actual frontend domain
